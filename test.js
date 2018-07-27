@@ -40,7 +40,9 @@ test.cb('should throw when binding to already taken port', t => {
   t.is(bound, port)
 
   const error = t.throws(() => {
-    bind(server, port)
+    const bound2 = bind(server, port)
+
+    console.log(`we should not be here! bound2: ${bound2} bound: ${bound}`)
   }, Error)
 
   t.is(error.message, `Failed to bind to port ${port}`)

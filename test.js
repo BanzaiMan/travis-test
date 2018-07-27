@@ -4,8 +4,6 @@ import test from 'ava'
 const protoLoader = require('@grpc/proto-loader')
 const grpc = require('grpc')
 
-const { bind } = require('./')
-
 const PROTO_PATH = path.resolve(__dirname, './hello.proto')
 const pd = protoLoader.loadSync(PROTO_PATH)
 const hp = grpc.loadPackageDefinition(pd).helloworld
@@ -21,31 +19,27 @@ test.cb('should bind service', t => {
   const port = 50051
   server.addService(hp.Greeter.service, { sayHello: sayHello })
 
-  const bound = bind(server, port)
+  const bound = server.bind(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure())
 
   t.is(bound, port)
 
   server.tryShutdown(t.end)
 })
 
-test.cb('should throw when binding to already taken port', t => {
-  t.plan(3)
+test.cb('should return 0 when binding to already taken port', t => {
+  t.plan(2)
 
   const server = new grpc.Server()
   const port = 50052
   server.addService(hp.Greeter.service, { sayHello: sayHello })
 
-  const bound = bind(server, port)
+  const bound = server.bind(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure())
 
   t.is(bound, port)
 
-  const error = t.throws(() => {
-    const bound2 = bind(server, port)
+  const bound2 = server.bind(`0.0.0.0:${port}`, grpc.ServerCredentials.createInsecure())
 
-    console.log(`we should not be here! bound2: ${bound2} bound: ${bound}`)
-  }, Error)
-
-  t.is(error.message, `Failed to bind to port ${port}`)
+  t.is(bound2, 0)
 
   server.tryShutdown(t.end)
 })

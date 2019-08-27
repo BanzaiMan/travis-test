@@ -7,7 +7,7 @@ const grpc = require('grpc')
 const PROTO_PATH = path.resolve(__dirname, './hello.proto')
 const pd = protoLoader.loadSync(PROTO_PATH)
 const hp = grpc.loadPackageDefinition(pd).helloworld
-
+ 
 function sayHello (call, fn) {
   fn(null, { message: 'Hello ' + call.request.name })
 }
